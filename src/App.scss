@@ -1,0 +1,48 @@
+.App {
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  flex-direction: column;
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-direction: column;
+
+  &__inputs {
+    justify-content: space-between;
+    display: flex;
+    margin-bottom: 12px;
+  }
+
+  &__textOutput {
+    margin: 12px;
+
+    span {
+      border: 1px solid black;
+      padding: 4px 8px;
+      border-radius: 3px;
+    }
+  }
+}
+
+.buttons {
+  padding: 12px;
+}
+
+.timer {
+
+  &__textOutput {
+    margin: 12px;
+
+    span {
+      padding: 4px 8px;
+      border-radius: 3px;
+    }
+  }
+}
