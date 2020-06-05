@@ -9,7 +9,7 @@ const RegistrationForm = () => {
   const passwordRegExp = new RegExp('^(?=.*[A-Z])(?=.*[0-9])(?=.{8,50}$)');
 
   const validateMessages = {
-    required: '"${name" is required',
+    required: '"${name}" is required',
     pattern: {
       mismatch: ((name) => {
         if (name === 'password') {
