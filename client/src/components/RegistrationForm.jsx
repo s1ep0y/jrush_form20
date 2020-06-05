@@ -12,9 +12,7 @@ const validateMessages = {
     email: '${label} is not validate email',
   },
 };
-
-export default class RegistrationForm extends React.Component {
-  render() {
+const RegistrationForm = () => {
     return (
       <div>
         <Form>
@@ -65,6 +63,7 @@ export default class RegistrationForm extends React.Component {
           </Form.Item>
         </Form>
       </div>
-    );
-  }
+    );  
 }
+
+export default RegistrationForm;
