@@ -4,6 +4,7 @@ import {
   Form, Input, Button, Checkbox,
 } from 'antd';
 import { string } from 'yup';
+import axios from 'axios';
 
 const RegistrationForm = () => {
   const passwordRegExp = new RegExp('^(?=.*[A-Z])(?=.*[0-9])(?=.{8,50}$)');
@@ -23,7 +24,7 @@ const RegistrationForm = () => {
 
   const formik = useFormik({
     initialValues: {},
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       const valKeys = Object.keys(values);
       const noEmpty = valKeys.reduce((acc, currentValue) => {
         if (values[currentValue]) {
@@ -36,7 +37,12 @@ const RegistrationForm = () => {
       { skills: [] });
 
 
-      alert(JSON.stringify(noEmpty, null, 2));
+      try {
+        const res = await axios.post('https://regforserver.s1ep0y.now.sh/sign-up', noEmpty);
+        alert(res.data);
+      } catch (e) {
+        alert(e);
+      }
     },
   });
 
