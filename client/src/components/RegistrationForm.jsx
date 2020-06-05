@@ -25,10 +25,17 @@ const RegistrationForm = () => {
     initialValues: {},
     onSubmit: (values) => {
       const valKeys = Object.keys(values);
-      const noEmpty = valKeys.reduce((acc, currentValue) => (values[currentValue]
-        ? { ...acc, [currentValue]: values[currentValue] }
-        : { ...acc }),
-      {});
+      const noEmpty = valKeys.reduce((acc, currentValue) => {
+        if (values[currentValue]) {
+          const elem = values[currentValue];
+          return currentValue.includes('skill') ? { ...acc, skills: [...acc.skills, elem] }
+            : { ...acc, [currentValue]: elem };
+        }
+        return { ...acc };
+      },
+      { skills: [] });
+
+
       alert(JSON.stringify(noEmpty, null, 2));
     },
   });
@@ -137,7 +144,6 @@ const RegistrationForm = () => {
               whitespace: true,
             },
             ]}
-
             noStyle="noStyle"
           >
             <Input
@@ -154,7 +160,6 @@ const RegistrationForm = () => {
                 <div>
                   {
                     fields.map((field) => (
-
                       <Form.Item key={field.key}>
                         <Form.Item
                           {...field}
@@ -184,7 +189,6 @@ const RegistrationForm = () => {
                       }}
                       style={{
                         width: '60%',
-
                       }}
                     >
                       Add field
