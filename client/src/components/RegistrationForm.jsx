@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import {
-  Form, Input, Button, Checkbox,
+  Form, Input, Button, Checkbox, message
 } from 'antd';
 import { string } from 'yup';
 import axios from 'axios';
 
 const RegistrationForm = () => {
   const [toShow, changeView] = useState('form');
-  const [emailTook, changeEmailStatus] = useState(false);
 
   const passwordRegExp = new RegExp('^(?=.*[A-Z])(?=.*[0-9])(?=.{8,50}$)');
 
@@ -41,17 +40,16 @@ const RegistrationForm = () => {
       { skills: [] });
 
       try {
-        const res = await axios.post('https://regforserver.s1ep0y.now.sh/sign-up', noEmpty);
+        await axios.post('https://regforserver.s1ep0y.now.sh/sign-up', noEmpty);
         changeView('succes');
       } catch (err) {
-        console.log(err);
-        changeEmailStatus(true);
+        message.error('This email already registered');
         throw new Error(err);
       }
     },
   });
 
-  const form = (emtook) => (
+  const form = () => (
     <Form validateMessages={validateMessages} onFinish={formik.handleSubmit}>
       <Form.Item
         label="Name"
@@ -111,7 +109,6 @@ const RegistrationForm = () => {
           },
           () => ({
             validator(rule, value) {
-              if (emtook) return Promise.reject('Email alredy took');
               if (string().email().isValidSync(value)) return Promise.resolve();
               return Promise.reject('Incorrect email adress');
             },
@@ -245,7 +242,7 @@ const RegistrationForm = () => {
 
   return (
     <div>
-      {toShow === 'form' ? form(emailTook) : <p>Now your registered</p>}
+      {toShow === 'form' ? form() : <p>Now your registered</p>}
     </div>
   );
 };
