@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import {
   Form, Input, Button, Checkbox,
@@ -7,7 +7,11 @@ import { string } from 'yup';
 import axios from 'axios';
 
 const RegistrationForm = () => {
+  const [toShow, changeView] = useState('form');
+  const [emailTook, changeEmailStatus] = useState(false);
+
   const passwordRegExp = new RegExp('^(?=.*[A-Z])(?=.*[0-9])(?=.{8,50}$)');
+
 
   const validateMessages = {
     required: '"${name}" is required',
@@ -36,200 +40,212 @@ const RegistrationForm = () => {
       },
       { skills: [] });
 
-
       try {
         const res = await axios.post('https://regforserver.s1ep0y.now.sh/sign-up', noEmpty);
-        alert(res.data);
-      } catch (e) {
-        alert(e);
+        changeView('succes');
+      } catch (err) {
+        console.log(err);
+        changeEmailStatus(true);
+        throw new Error(err);
       }
     },
   });
 
-  return (
-    <div>
-      <Form validateMessages={validateMessages} onFinish={formik.handleSubmit}>
-        <Form.Item
-          label="Name"
-          name="name"
-          max={50}
-          rules={[{
+  const form = (emtook) => (
+    <Form validateMessages={validateMessages} onFinish={formik.handleSubmit}>
+      <Form.Item
+        label="Name"
+        name="name"
+        validateTrigger={['onBlur']}
+        max={50}
+        rules={[{
+          required: true,
+        },
+        ]}
+      >
+        <Input onChange={formik.handleChange} />
+      </Form.Item>
+      <Form.Item
+        name="password"
+        label="Password"
+        validateTrigger={['onBlur']}
+        rules={[{
+          required: true,
+          pattern: passwordRegExp,
+        },
+        ]}
+      >
+        <Input.Password onChange={formik.handleChange} />
+      </Form.Item>
+
+      <Form.Item
+        name="confirm"
+        label="Confirm Password"
+        validateTrigger={['onBlur']}
+        dependencies={['password']}
+        rules={[
+          {
+            required: true,
+            message: 'Please confirm your password!',
+          },
+          ({ getFieldValue }) => ({
+            validator(rule, value) {
+              if (!value || getFieldValue('password') === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject('The two passwords that you entered do not match!');
+            },
+          }),
+        ]}
+      >
+        <Input.Password />
+      </Form.Item>
+      <Form.Item
+        name="email"
+        label="Email"
+        validateTrigger={['onBlur', 'onSubmit']}
+        shouldUpdate
+        rules={[
+          {
             required: true,
           },
-          ]}
-        >
-          <Input onChange={formik.handleChange} />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          label="Password"
-          rules={[{
-            required: true,
-            pattern: passwordRegExp,
-          },
-          ]}
-        >
-          <Input.Password onChange={formik.handleChange} />
-        </Form.Item>
+          () => ({
+            validator(rule, value) {
+              if (emtook) return Promise.reject('Email alredy took');
+              if (string().email().isValidSync(value)) return Promise.resolve();
+              return Promise.reject('Incorrect email adress');
+            },
+          }),
+        ]}
+      >
+        <Input onChange={formik.handleChange} />
+      </Form.Item>
+      <Form.Item
+        name="website"
+        label="Website"
+        validateTrigger={['onBlur']}
+        rules={[
+          {}, () => ({
+            validator(rule, value) {
+              if (string().url().isValidSync(value)) return Promise.resolve();
+              return Promise.reject('Incorrect website adress');
+            },
+          }),
+        ]}
+      >
+        <Input onChange={formik.handleChange} />
+      </Form.Item>
+      <Form.Item
+        label="Age"
+        name="age"
+        rules={[{
+          required: true,
+        },
+        ]}
+      >
+        <Input
+          type="number"
+          validateTrigger={['onBlur']}
+          min={18}
+          max={65}
+          onChange={formik.handleChange}
+        />
+      </Form.Item>
+
+      <Form.Item label="skills">
 
         <Form.Item
-          name="confirm"
-          label="Confirm Password"
-          dependencies={['password']}
-          rules={[
-            {
-              required: true,
-              message: 'Please confirm your password!',
-            },
-            ({ getFieldValue }) => ({
-              validator(rule, value) {
-                if (!value || getFieldValue('password') === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject('The two passwords that you entered do not match!');
-              },
-            }),
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-        <Form.Item
-          name="email"
-          label="Email"
-          rules={[
-            {
-              required: true,
-            },
-            () => ({
-              validator(rule, value) {
-                if (string().email().isValidSync(value)) return Promise.resolve();
-                return Promise.reject('Incorrect email adress');
-              },
-            }),
-          ]}
-        >
-          <Input onChange={formik.handleChange} />
-        </Form.Item>
-        <Form.Item
-          name="website"
-          label="Website"
-          rules={[
-            {}, () => ({
-              validator(rule, value) {
-                if (string().url().isValidSync(value)) return Promise.resolve();
-                return Promise.reject('Incorrect website adress');
-              },
-            }),
-          ]}
-        >
-          <Input onChange={formik.handleChange} />
-        </Form.Item>
-        <Form.Item
-          label="Age"
-          name="age"
+          name="skills_base"
+          validateTrigger={['onChange', 'onBlur']}
           rules={[{
-            required: true,
+            whitespace: true,
           },
           ]}
+          noStyle="noStyle"
         >
           <Input
-            type="number"
-            min={18}
-            max={65}
             onChange={formik.handleChange}
-
+            style={{
+              width: '80%',
+              marginBottom: '24px',
+            }}
           />
         </Form.Item>
-
-        <Form.Item label="skills">
-
-          <Form.Item
-            name="skills_base"
-            validateTrigger={['onChange', 'onBlur']}
-            rules={[{
-              whitespace: true,
-            },
-            ]}
-            noStyle="noStyle"
-          >
-            <Input
-              onChange={formik.handleChange}
-              style={{
-                width: '80%',
-                marginBottom: '24px',
-              }}
-            />
-          </Form.Item>
-          <Form.List name="skills">
+        <Form.List name="skills">
+          {
+        (fields = [{}], { add }) => (
+          <div>
             {
-              (fields = [{}], { add }) => (
-                <div>
-                  {
-                    fields.map((field) => (
-                      <Form.Item key={field.key}>
-                        <Form.Item
-                          {...field}
-                          validateTrigger={['onChange', 'onBlur']}
-                          rules={[{
-                            whitespace: true,
-                          },
-                          ]}
+              fields.map((field) => (
+                <Form.Item key={field.key}>
+                  <Form.Item
+                    {...field}
+                    validateTrigger={['onChange', 'onBlur']}
+                    rules={[{
+                      whitespace: true,
+                    },
+                    ]}
 
-                          style={{ marginBottom: '0px' }}
-                        >
-                          <Input
-                            onChange={formik.handleChange}
-                            style={{
-                              width: '80%',
-                            }}
-                          />
-                        </Form.Item>
-                      </Form.Item>
-                    ))
-}
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() => {
-                        add();
-                      }}
+                    style={{ marginBottom: '0px' }}
+                  >
+                    <Input
+                      onChange={formik.handleChange}
                       style={{
-                        width: '60%',
+                        width: '80%',
                       }}
-                    >
-                      Add field
-                    </Button>
+                    />
                   </Form.Item>
-                </div>
-              )
-                    }
-          </Form.List>
+                </Form.Item>
+              ))
+}
+            <Form.Item>
+              <Button
+                type="dashed"
+                onClick={() => {
+                  add();
+                }}
+                style={{
+                  width: '60%',
+                }}
+              >
+                Add field
+              </Button>
+            </Form.Item>
+          </div>
+        )
+              }
+        </Form.List>
 
-        </Form.Item>
+      </Form.Item>
 
-        <Form.Item
-          name="agreement"
-          valuePropName="checked"
-          rules={[{
-            validator: (rule, value) => (
-              value
-                ? Promise.resolve()
-                : Promise.reject('Should accept agreement')
-            ),
-          },
-          ]}
-        >
-          <Checkbox>
-            I have read the
-            <a href="#">agreement</a>
-          </Checkbox>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Register
-          </Button>
-        </Form.Item>
-      </Form>
+      <Form.Item
+        name="agreement"
+        valuePropName="checked"
+        rules={[{
+          validator: (rule, value) => (
+            value
+              ? Promise.resolve()
+              : Promise.reject('Should accept agreement')
+          ),
+        },
+        ]}
+      >
+        <Checkbox>
+          I have read the
+          <a href="#">agreement</a>
+        </Checkbox>
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Register
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+
+  return (
+    <div>
+      {toShow === 'form' ? form(emailTook) : <p>Now your registered</p>}
     </div>
   );
 };
