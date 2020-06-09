@@ -9,7 +9,6 @@ import axios from 'axios';
 
 const RegistrationForm = () => {
   const [toShow, changeView] = useState('form');
-  const [email, isTook] = useState(false);
 
   const formik = useFormik({
     initialValues: {},
@@ -118,7 +117,6 @@ const RegistrationForm = () => {
             },
             () => ({
               validator(rule, value) {
-                if (email) Promise.reject('Email is alrdy took');
                 if (string().email().isValidSync(value)) return Promise.resolve();
                 return Promise.reject('Incorrect email adress');
               },
