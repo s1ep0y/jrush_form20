@@ -7,7 +7,7 @@ import RegistrationForm from './components/RegistrationForm'
 function App() {
   return (
     <div className="App">
-      <p>some app</p>
+      <p>Registatrion Form</p>
       <RegistrationForm />
     </div>
   );
