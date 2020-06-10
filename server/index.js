@@ -23,10 +23,10 @@ app.post('/sign-up', (req, res) => {
     const uniqueEmail = users.map(({email})=> email).includes(data.email);
     if(!uniqueEmail) {
         users.push(data);
-        res.status(201).send('succes');
+        res.status(201).send(data);
         return;
     }
-    res.status(409).send('Email alredy exist');
+    res.status(409).send({ error: "Email alredy exist" });
     return;
 })
 

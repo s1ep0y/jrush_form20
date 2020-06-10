@@ -3,15 +3,27 @@ import { useFormik } from 'formik';
 import {
   Form, Input, Button, Checkbox, message,
 } from 'antd';
-import { string } from 'yup';
+import * as Yup from 'yup';
 import axios from 'axios';
 
 
 const RegistrationForm = () => {
   const [toShow, changeView] = useState('form');
 
+  const regShema = Yup.object().shape({
+    email: Yup.string()
+      .email('Invalid email')
+      .required('Email is required'),
+    website: Yup.string()
+      .url('Ivalid URL adress'),
+
+  });
+
   const formik = useFormik({
     initialValues: {},
+    validateOnChange: false,
+    validateOnBlur: true,
+    validationSchema: regShema,
     onSubmit: async (values) => {
       const valKeys = Object.keys(values);
       const noEmpty = valKeys.reduce((acc, currentValue) => {
@@ -24,15 +36,15 @@ const RegistrationForm = () => {
       },
       { skills: [] });
 
-      try {
-        await axios.post('https://regforserver.s1ep0y.now.sh/sign-up', noEmpty);
-        changeView('succes');
-      } catch (err) {
-        message.error('This email already registered');
-
-
-        isTook(true);
-      }
+      await axios.post('https://regforserver.s1ep0y.now.sh/sign-up', noEmpty)
+        .then(() => changeView('succes'))
+        .catch((error) => {
+          if (error.response.status === 409) {
+            message.error('Email alredy exist');
+            return;
+          }
+          message.error('Unexpected error');
+        });
     },
   });
 
@@ -52,6 +64,8 @@ const RegistrationForm = () => {
         }),
       },
     };
+
+
     return (
       <Form
         validateMessages={validateMessages}
@@ -59,6 +73,7 @@ const RegistrationForm = () => {
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 12 }}
       >
+        <p>{JSON.stringify(formik.errors)}</p>
         <Form.Item
           label="Name"
           name="name"
@@ -69,6 +84,7 @@ const RegistrationForm = () => {
           },
           ]}
         >
+
           <Input onChange={formik.handleChange} />
         </Form.Item>
         <Form.Item
@@ -109,36 +125,22 @@ const RegistrationForm = () => {
         <Form.Item
           name="email"
           label="Email"
+          validateStatus={formik.errors.email ? 'error' : 'success'}
+          rules={[{ required: true }]}
           validateTrigger={['onBlur', 'onSubmit']}
           shouldUpdate
-          rules={[
-            {
-              required: true,
-            },
-            () => ({
-              validator(rule, value) {
-                if (string().email().isValidSync(value)) return Promise.resolve();
-                return Promise.reject('Incorrect email adress');
-              },
-            }),
-          ]}
+          help={formik.errors.email}
         >
-          <Input onChange={formik.handleChange} />
+          <Input onChange={formik.handleChange} onBlur={formik.handleBlur} />
         </Form.Item>
         <Form.Item
           name="website"
           label="Website"
           validateTrigger={['onBlur']}
-          rules={[
-            {}, () => ({
-              validator(rule, value) {
-                if (string().url().isValidSync(value)) return Promise.resolve();
-                return Promise.reject('Incorrect website adress');
-              },
-            }),
-          ]}
+          validateStatus={formik.errors.website ? 'error' : 'success'}
+          help={formik.errors.website}
         >
-          <Input onChange={formik.handleChange} />
+          <Input onChange={formik.handleChange} onBlur={formik.handleBlur} />
         </Form.Item>
         <Form.Item
           label="Age"
