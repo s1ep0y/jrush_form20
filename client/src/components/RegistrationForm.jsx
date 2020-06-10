@@ -73,7 +73,6 @@ const RegistrationForm = () => {
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 12 }}
       >
-        <p>{JSON.stringify(formik.errors)}</p>
         <Form.Item
           label="Name"
           name="name"
